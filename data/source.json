@@ -1,0 +1,52 @@
+{
+  "tenants": [
+    {
+      "id": "regnum-christi",
+      "enabled": true,
+      "name": "Regnum Christi",
+      "password_check_url": "https://auth.regnumchristi.org/check",
+      "version": 1
+    }
+  ],
+  "clients": [
+    {
+      "id": "semperaltius",
+      "enabled": true,
+      "name": "Semper Altius",
+      "redirect_uris": [
+        "https://pagos.semperaltius.edu.mx/callback"
+      ],
+      "pkce_required": true,
+      "version": 1
+    }
+  ],
+  "subtenants": [
+    {
+      "id": "rcsa",
+      "tenant_id": "regnum-christi",
+      "enabled": true,
+      "name": "RCSA",
+      "version": 1
+    }
+  ],
+  "domains": [
+    {
+      "host": "pagos.semperaltius.edu.mx",
+      "enabled": true,
+      "tenant_id": "regnum-christi",
+      "default_subtenant_id": "rcsa",
+      "client_id": "semperaltius",
+      "version": 1
+    }
+  ],
+  "brandings": [
+    {
+      "id": "branding_rcsa_001",
+      "scope": "subtenant",
+      "tenant_id": "regnum-christi",
+      "subtenant_id": "rcsa",
+      "version": 1
+    }
+  ]
+}
+
