@@ -1,0 +1,6 @@
+db.brandings.deleteMany({});
+db.clients.deleteMany({});
+db.domains.deleteMany({});
+db.subtenants.deleteMany({});
+db.sync_outbox.deleteMany({});
+db.tenants.deleteMany({});
