@@ -16,7 +16,11 @@ export interface UpsertTenantPayload {
     id: string;
     enabled: boolean;
     name: string;
-    password_check_url?: string;
+    password_check_endpoint: string;
+    user_migrated_endpoint: string;
+    lookup_email_endpoint: string;
+    forgot_password_endpoint: string;
+    slug: string;
     [key: string]: unknown;
   };
 }
@@ -47,6 +51,7 @@ export interface UpsertSubtenantPayload {
 export interface UpsertDomainPayload {
   request_id: string;
   domain: {
+    id: string;
     host: string;
     enabled: boolean;
     tenant_id: string;
@@ -60,9 +65,8 @@ export interface UpsertBrandingPayload {
   request_id: string;
   branding: {
     id: string;
-    scope: string;
-    tenant_id?: string;
-    subtenant_id?: string;
+    subtenant_id: string;
+    enabled: boolean;
     [key: string]: unknown;
   };
 }

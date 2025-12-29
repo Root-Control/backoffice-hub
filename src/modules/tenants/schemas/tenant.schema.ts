@@ -20,7 +20,19 @@ export class Tenant {
   user_migrated_endpoint: string;
 
   @Prop({ required: true })
+  lookup_email_endpoint: string;
+
+  @Prop({ required: true })
+  forgot_password_endpoint: string;
+
+  @Prop({ required: true })
   slug: string;
+
+  @Prop({ required: true })
+  logo: string;
+
+  @Prop({ required: true, default: true })
+  allow_auto_link: boolean;
 
   @Prop({ type: Date })
   deleted_at?: Date;

@@ -15,16 +15,18 @@ export class TenantsService {
     private syncService: SyncService,
   ) {}
 
-  async create(
-    dto: CreateTenantDto,
-    requestId?: string,
-  ): Promise<TenantDocument> {
+  async create(dto: CreateTenantDto): Promise<TenantDocument> {
     const tenant = new this.tenantModel({
       name: dto.name,
       enabled: dto.enabled !== undefined ? dto.enabled : true,
       password_check_endpoint: dto.password_check_endpoint,
       user_migrated_endpoint: dto.user_migrated_endpoint,
+      lookup_email_endpoint: dto.lookup_email_endpoint,
+      forgot_password_endpoint: dto.forgot_password_endpoint,
       slug: dto.slug,
+      logo: dto.logo,
+      allow_auto_link:
+        dto.allow_auto_link !== undefined ? dto.allow_auto_link : true,
     });
 
     const saved = await tenant.save();
@@ -33,7 +35,7 @@ export class TenantsService {
     try {
       const lastSync = await this.syncService.syncTenant(
         saved.toObject() as any,
-        requestId,
+        'create',
       );
       saved.last_sync = lastSync;
       await saved.save();
@@ -64,7 +66,6 @@ export class TenantsService {
   async update(
     id: string,
     dto: UpdateTenantDto,
-    requestId?: string,
   ): Promise<TenantDocument> {
     const tenant = await this.tenantModel
       .findById(id)
@@ -82,7 +83,7 @@ export class TenantsService {
     try {
       const lastSync = await this.syncService.syncTenant(
         updated.toObject() as any,
-        requestId,
+        'update',
       );
       updated.last_sync = lastSync;
       await updated.save();
@@ -94,7 +95,7 @@ export class TenantsService {
     return updated;
   }
 
-  async delete(id: string, requestId?: string): Promise<void> {
+  async delete(id: string): Promise<void> {
     const tenant = await this.tenantModel
       .findById(id)
       .where('deleted_at')
@@ -113,7 +114,7 @@ export class TenantsService {
     try {
       const lastSync = await this.syncService.syncTenant(
         updated.toObject() as any,
-        requestId,
+        'delete',
       );
       updated.last_sync = lastSync;
       await updated.save();

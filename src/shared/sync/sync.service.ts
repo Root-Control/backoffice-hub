@@ -33,16 +33,18 @@ export class SyncService {
       name: string;
       password_check_endpoint: string;
       user_migrated_endpoint: string;
+      lookup_email_endpoint: string;
+      forgot_password_endpoint: string;
       slug: string;
       [key: string]: unknown;
     } | Record<string, unknown>,
-    requestId?: string,
+    action: 'create' | 'update' | 'delete' = 'update',
   ): Promise<LastSync> {
     const entityId =
       typeof (doc as any)._id === 'string'
         ? (doc as any)._id
         : (doc as any)._id?.toHexString?.() || (doc as any)._id.toString();
-    const reqId = ensureRequestId(requestId, 'update', 'tenant', entityId);
+    const reqId = ensureRequestId(undefined, action, 'tenant', entityId);
 
     const payload = {
       request_id: reqId,
@@ -52,11 +54,13 @@ export class SyncService {
         name: (doc as any).name,
         password_check_endpoint: (doc as any).password_check_endpoint,
         user_migrated_endpoint: (doc as any).user_migrated_endpoint,
+        lookup_email_endpoint: (doc as any).lookup_email_endpoint,
+        forgot_password_endpoint: (doc as any).forgot_password_endpoint,
         slug: (doc as any).slug,
         ...Object.fromEntries(
           Object.entries(doc as Record<string, unknown>).filter(
             ([key]) =>
-              !['_id', 'enabled', 'name', 'password_check_endpoint', 'user_migrated_endpoint', 'slug', 'createdAt', 'updatedAt', 'deleted_at', 'last_sync'].includes(
+              !['_id', 'enabled', 'name', 'password_check_endpoint', 'user_migrated_endpoint', 'lookup_email_endpoint', 'forgot_password_endpoint', 'slug', 'createdAt', 'updatedAt', 'deleted_at', 'last_sync'].includes(
                 key,
               ),
           ),
@@ -79,13 +83,13 @@ export class SyncService {
       pkce_required?: boolean;
       [key: string]: unknown;
     } | Record<string, unknown>,
-    requestId?: string,
+    action: 'create' | 'update' | 'delete' = 'update',
   ): Promise<LastSync> {
     const entityId =
       typeof (doc as any)._id === 'string'
         ? (doc as any)._id
         : (doc as any)._id?.toHexString?.() || (doc as any)._id.toString();
-    const reqId = ensureRequestId(requestId, 'update', 'client', entityId);
+    const reqId = ensureRequestId(undefined, action, 'client', entityId);
 
     const payload = {
       request_id: reqId,
@@ -120,13 +124,13 @@ export class SyncService {
       name: string;
       [key: string]: unknown;
     } | Record<string, unknown>,
-    requestId?: string,
+    action: 'create' | 'update' | 'delete' = 'update',
   ): Promise<LastSync> {
     const entityId =
       typeof (doc as any)._id === 'string'
         ? (doc as any)._id
         : (doc as any)._id?.toHexString?.() || (doc as any)._id.toString();
-    const reqId = ensureRequestId(requestId, 'update', 'subtenant', entityId);
+    const reqId = ensureRequestId(undefined, action, 'subtenant', entityId);
 
     const payload = {
       request_id: reqId,
@@ -162,15 +166,19 @@ export class SyncService {
       client_id?: string;
       [key: string]: unknown;
     } | Record<string, unknown>,
-    requestId?: string,
+    action: 'create' | 'update' | 'delete' = 'update',
   ): Promise<LastSync> {
-    const host = (doc as any).host;
-    const reqId = ensureRequestId(requestId, 'update', 'domain', host);
+    const entityId =
+      typeof (doc as any)._id === 'string'
+        ? (doc as any)._id
+        : (doc as any)._id?.toHexString?.() || (doc as any)._id.toString();
+    const reqId = ensureRequestId(undefined, action, 'domain', entityId);
 
     const payload = {
       request_id: reqId,
       domain: {
-        host: host,
+        id: entityId,
+        host: (doc as any).host,
         enabled: (doc as any).enabled,
         tenant_id: (doc as any).tenant_id,
         default_subtenant_id: (doc as any).default_subtenant_id,
@@ -186,7 +194,7 @@ export class SyncService {
       },
     };
 
-    return this.sync('domain', host, reqId, payload);
+    return this.sync('domain', entityId, reqId, payload);
   }
 
   /**
@@ -195,30 +203,32 @@ export class SyncService {
   async syncBranding(
     doc: {
       _id: string | { toString(): string } | { toHexString(): string };
-      scope: string;
-      tenant_id?: string;
-      subtenant_id?: string;
+      subtenant_id: string | { toString(): string } | { toHexString(): string };
+      enabled: boolean;
       [key: string]: unknown;
     } | Record<string, unknown>,
-    requestId?: string,
+    action: 'create' | 'update' | 'delete' = 'update',
   ): Promise<LastSync> {
     const entityId =
       typeof (doc as any)._id === 'string'
         ? (doc as any)._id
         : (doc as any)._id?.toHexString?.() || (doc as any)._id.toString();
-    const reqId = ensureRequestId(requestId, 'update', 'branding', entityId);
+    const subtenantId =
+      typeof (doc as any).subtenant_id === 'string'
+        ? (doc as any).subtenant_id
+        : (doc as any).subtenant_id?.toHexString?.() || (doc as any).subtenant_id.toString();
+    const reqId = ensureRequestId(undefined, action, 'branding', entityId);
 
     const payload = {
       request_id: reqId,
       branding: {
         id: entityId,
-        scope: (doc as any).scope,
-        tenant_id: (doc as any).tenant_id,
-        subtenant_id: (doc as any).subtenant_id,
+        subtenant_id: subtenantId,
+        enabled: (doc as any).enabled,
         ...Object.fromEntries(
           Object.entries(doc as Record<string, unknown>).filter(
             ([key]) =>
-              !['_id', 'scope', 'tenant_id', 'subtenant_id', 'createdAt', 'updatedAt', 'deleted_at', 'last_sync'].includes(
+              !['_id', 'subtenant_id', 'enabled', 'created_at', 'updated_at', 'deleted_at', 'last_sync'].includes(
                 key,
               ),
           ),
