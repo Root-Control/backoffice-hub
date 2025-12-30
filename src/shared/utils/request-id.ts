@@ -1,4 +1,4 @@
-import { createHash } from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
 
 export type EntityType =
   | 'tenant'
@@ -8,8 +8,8 @@ export type EntityType =
   | 'branding';
 
 /**
- * Ensures a request_id exists.
- * If provided, returns it. Otherwise generates a deterministic one.
+ * Generates a unique UUID v4 for each request.
+ * Always generates a new UUID, ignoring any provided request_id.
  */
 export function ensureRequestId(
   providedRequestId: string | undefined,
@@ -17,14 +17,8 @@ export function ensureRequestId(
   entityType: EntityType,
   entityKey: string,
 ): string {
-  if (providedRequestId) {
-    return providedRequestId;
-  }
-
-  // Generate deterministic request_id using SHA256 hash
-  const timestamp = Date.now();
-  const input = `${action}|${entityType}|${entityKey}|${timestamp}`;
-  const hash = createHash('sha256').update(input).digest('hex');
-  return hash.substring(0, 32);
+  // Always generate unique UUID v4 for each request
+  // Ignore any provided request_id from headers
+  return uuidv4();
 }
 

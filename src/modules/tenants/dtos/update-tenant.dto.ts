@@ -19,7 +19,7 @@ export class UpdateTenantDto {
 
   @IsOptional()
   @IsUrl(
-    { require_protocol: true },
+    { require_protocol: true, require_tld: false },
     {
       message:
         'lookup_email_endpoint must be a valid URL with protocol (http:// or https://)',
@@ -29,19 +29,6 @@ export class UpdateTenantDto {
     message: 'lookup_email_endpoint must not exceed 2048 characters',
   })
   lookup_email_endpoint?: string;
-
-  @IsOptional()
-  @IsUrl(
-    { require_protocol: true },
-    {
-      message:
-        'forgot_password_endpoint must be a valid URL with protocol (http:// or https://)',
-    },
-  )
-  @MaxLength(2048, {
-    message: 'forgot_password_endpoint must not exceed 2048 characters',
-  })
-  forgot_password_endpoint?: string;
 
   @IsOptional()
   @IsString()

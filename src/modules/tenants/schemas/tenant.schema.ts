@@ -23,9 +23,6 @@ export class Tenant {
   lookup_email_endpoint: string;
 
   @Prop({ required: true })
-  forgot_password_endpoint: string;
-
-  @Prop({ required: true })
   slug: string;
 
   @Prop({ required: true })

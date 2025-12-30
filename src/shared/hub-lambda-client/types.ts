@@ -19,7 +19,6 @@ export interface UpsertTenantPayload {
     password_check_endpoint: string;
     user_migrated_endpoint: string;
     lookup_email_endpoint: string;
-    forgot_password_endpoint: string;
     slug: string;
     [key: string]: unknown;
   };

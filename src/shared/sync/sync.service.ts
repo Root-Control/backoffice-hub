@@ -34,7 +34,6 @@ export class SyncService {
       password_check_endpoint: string;
       user_migrated_endpoint: string;
       lookup_email_endpoint: string;
-      forgot_password_endpoint: string;
       slug: string;
       [key: string]: unknown;
     } | Record<string, unknown>,
@@ -55,12 +54,11 @@ export class SyncService {
         password_check_endpoint: (doc as any).password_check_endpoint,
         user_migrated_endpoint: (doc as any).user_migrated_endpoint,
         lookup_email_endpoint: (doc as any).lookup_email_endpoint,
-        forgot_password_endpoint: (doc as any).forgot_password_endpoint,
         slug: (doc as any).slug,
         ...Object.fromEntries(
           Object.entries(doc as Record<string, unknown>).filter(
             ([key]) =>
-              !['_id', 'enabled', 'name', 'password_check_endpoint', 'user_migrated_endpoint', 'lookup_email_endpoint', 'forgot_password_endpoint', 'slug', 'createdAt', 'updatedAt', 'deleted_at', 'last_sync'].includes(
+              !['_id', 'enabled', 'name', 'password_check_endpoint', 'user_migrated_endpoint', 'lookup_email_endpoint', 'slug', 'createdAt', 'updatedAt', 'deleted_at', 'last_sync'].includes(
                 key,
               ),
           ),

@@ -22,7 +22,6 @@ export class TenantsService {
       password_check_endpoint: dto.password_check_endpoint,
       user_migrated_endpoint: dto.user_migrated_endpoint,
       lookup_email_endpoint: dto.lookup_email_endpoint,
-      forgot_password_endpoint: dto.forgot_password_endpoint,
       slug: dto.slug,
       logo: dto.logo,
       allow_auto_link:

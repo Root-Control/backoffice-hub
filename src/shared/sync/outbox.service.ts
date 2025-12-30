@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Outbox, OutboxDocument } from './outbox.schema';
 import { HubLambdaClient } from '../hub-lambda-client/hub-lambda-client';
-import { sleep } from '../utils/time';
 
 @Injectable()
 export class OutboxService {
@@ -105,27 +104,36 @@ export class OutboxService {
     switch (entityType) {
       case 'tenant':
         return this.hubLambdaClient.upsertTenant(
-          payload as unknown as Parameters<typeof this.hubLambdaClient.upsertTenant>[0],
+          payload as unknown as Parameters<
+            typeof this.hubLambdaClient.upsertTenant
+          >[0],
         );
       case 'client':
         return this.hubLambdaClient.upsertClient(
-          payload as unknown as Parameters<typeof this.hubLambdaClient.upsertClient>[0],
+          payload as unknown as Parameters<
+            typeof this.hubLambdaClient.upsertClient
+          >[0],
         );
       case 'subtenant':
         return this.hubLambdaClient.upsertSubtenant(
-          payload as unknown as Parameters<typeof this.hubLambdaClient.upsertSubtenant>[0],
+          payload as unknown as Parameters<
+            typeof this.hubLambdaClient.upsertSubtenant
+          >[0],
         );
       case 'domain':
         return this.hubLambdaClient.upsertDomain(
-          payload as unknown as Parameters<typeof this.hubLambdaClient.upsertDomain>[0],
+          payload as unknown as Parameters<
+            typeof this.hubLambdaClient.upsertDomain
+          >[0],
         );
       case 'branding':
         return this.hubLambdaClient.upsertBranding(
-          payload as unknown as Parameters<typeof this.hubLambdaClient.upsertBranding>[0],
+          payload as unknown as Parameters<
+            typeof this.hubLambdaClient.upsertBranding
+          >[0],
         );
       default:
         throw new Error(`Unknown entity type: ${entityType}`);
     }
   }
 }
-

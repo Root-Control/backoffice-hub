@@ -48,6 +48,11 @@ export class HubLambdaClient {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
+    // Log the request body being sent to Lambda
+    const bodyString = JSON.stringify(payload, null, 2);
+    console.log(`[Lambda Request] URL: ${url}`);
+    console.log(`[Lambda Request] Body:`, bodyString);
+
     try {
       const response = await fetch(url, {
         method: 'POST',
