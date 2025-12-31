@@ -1,19 +1,10 @@
-import { IsString, IsBoolean, IsOptional } from 'class-validator';
+import { IsMongoId, IsBoolean, IsOptional } from 'class-validator';
 
 export class CreateBrandingDto {
-  @IsString()
-  scope: string;
-
-  @IsOptional()
-  @IsString()
-  tenant_id?: string;
-
-  @IsOptional()
-  @IsString()
-  subtenant_id?: string;
+  @IsMongoId()
+  subtenant_id: string;
 
   @IsOptional()
   @IsBoolean()
   enabled?: boolean;
 }
-

@@ -1,20 +1,22 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export type BrandingDocument = Branding & Document;
 
-@Schema({ collection: 'brandings', timestamps: true })
+@Schema({
+  collection: 'brandings',
+  timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
+})
 export class Branding {
   // _id is ObjectId by default - MongoDB handles it automatically
 
-  @Prop({ required: true })
-  scope: string;
-
-  @Prop({ type: String })
-  tenant_id?: string;
-
-  @Prop({ type: String })
-  subtenant_id?: string;
+  @Prop({
+    required: true,
+    type: Types.ObjectId,
+    ref: 'Subtenant',
+    unique: true,
+  })
+  subtenant_id: Types.ObjectId;
 
   @Prop({ required: true, default: true })
   enabled: boolean;
@@ -45,5 +47,5 @@ export class Branding {
 }
 
 export const BrandingSchema = SchemaFactory.createForClass(Branding);
-BrandingSchema.index({ tenant_id: 1 });
-BrandingSchema.index({ subtenant_id: 1 });
+BrandingSchema.index({ subtenant_id: 1 }, { unique: true });
+BrandingSchema.index({ enabled: 1 });

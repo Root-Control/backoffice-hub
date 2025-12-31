@@ -6,7 +6,7 @@ import {
   Delete,
   Body,
   Param,
-  Headers,
+  Query,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
@@ -20,16 +20,18 @@ export class BrandingsController {
   constructor(private readonly brandingsService: BrandingsService) {}
 
   @Post()
-  async create(
-    @Body() dto: CreateBrandingDto,
-    @Headers('x-request-id') requestId?: string,
-  ) {
-    return this.brandingsService.create(dto, requestId);
+  async create(@Body() dto: CreateBrandingDto) {
+    return this.brandingsService.create(dto);
   }
 
   @Get()
-  async find() {
-    return this.brandingsService.find();
+  async find(
+    @Query('subtenant_id') subtenantId?: string,
+    @Query('enabled') enabled?: string,
+  ) {
+    const enabledBool =
+      enabled === 'true' ? true : enabled === 'false' ? false : undefined;
+    return this.brandingsService.find(subtenantId, enabledBool);
   }
 
   @Get(':id')
@@ -41,17 +43,13 @@ export class BrandingsController {
   async update(
     @Param('id', ParseObjectIdPipe) id: string,
     @Body() dto: UpdateBrandingDto,
-    @Headers('x-request-id') requestId?: string,
   ) {
-    return this.brandingsService.update(id, dto, requestId);
+    return this.brandingsService.update(id, dto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async delete(
-    @Param('id', ParseObjectIdPipe) id: string,
-    @Headers('x-request-id') requestId?: string,
-  ) {
-    await this.brandingsService.delete(id, requestId);
+  async delete(@Param('id', ParseObjectIdPipe) id: string) {
+    await this.brandingsService.delete(id);
   }
 }

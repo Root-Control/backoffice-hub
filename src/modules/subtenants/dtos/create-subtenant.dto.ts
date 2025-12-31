@@ -10,5 +10,8 @@ export class CreateSubtenantDto {
   @IsOptional()
   @IsBoolean()
   enabled?: boolean;
+
+  @IsString()
+  logo: string;
 }
 

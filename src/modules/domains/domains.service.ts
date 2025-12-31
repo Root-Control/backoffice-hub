@@ -20,7 +20,7 @@ export class DomainsService {
     private syncService: SyncService,
   ) {}
 
-  async create(dto: CreateDomainDto, requestId?: string): Promise<DomainDocument> {
+  async create(dto: CreateDomainDto): Promise<DomainDocument> {
     const existing = await this.domainModel.findOne({ host: dto.host }).exec();
     if (existing) {
       throw new ConflictException(`Domain with host ${dto.host} already exists`);
@@ -36,15 +36,17 @@ export class DomainsService {
 
     const saved = await domain.save();
 
+    // Sync to lambda (non-blocking)
     try {
       const lastSync = await this.syncService.syncDomain(
         saved.toObject() as any,
-        requestId,
+        'create',
       );
       saved.last_sync = lastSync;
       await saved.save();
     } catch (error) {
       this.logger.error(`Sync failed for domain ${dto.host}: ${error}`);
+      // Don't fail the create operation
     }
 
     return saved;
@@ -54,66 +56,75 @@ export class DomainsService {
     return this.domainModel.find({ deleted_at: null }).exec();
   }
 
-  async findOne(host: string): Promise<DomainDocument> {
+  async findOne(id: string): Promise<DomainDocument> {
     const domain = await this.domainModel
-      .findOne({ host, deleted_at: null })
+      .findById(id)
+      .where('deleted_at')
+      .equals(null)
       .exec();
     if (!domain) {
-      throw new NotFoundException(`Domain with host ${host} not found`);
+      throw new NotFoundException(`Domain with id ${id} not found`);
     }
     return domain;
   }
 
   async update(
-    host: string,
+    id: string,
     dto: UpdateDomainDto,
-    requestId?: string,
   ): Promise<DomainDocument> {
     const domain = await this.domainModel
-      .findOne({ host, deleted_at: null })
+      .findById(id)
+      .where('deleted_at')
+      .equals(null)
       .exec();
     if (!domain) {
-      throw new NotFoundException(`Domain with host ${host} not found`);
+      throw new NotFoundException(`Domain with id ${id} not found`);
     }
 
     Object.assign(domain, dto);
     const updated = await domain.save();
 
+    // Sync to lambda (non-blocking)
     try {
       const lastSync = await this.syncService.syncDomain(
         updated.toObject() as any,
-        requestId,
+        'update',
       );
       updated.last_sync = lastSync;
       await updated.save();
     } catch (error) {
-      this.logger.error(`Sync failed for domain ${host}: ${error}`);
+      this.logger.error(`Sync failed for domain ${id}: ${error}`);
+      // Don't fail the update operation
     }
 
     return updated;
   }
 
-  async delete(host: string, requestId?: string): Promise<void> {
+  async delete(id: string): Promise<void> {
     const domain = await this.domainModel
-      .findOne({ host, deleted_at: null })
+      .findById(id)
+      .where('deleted_at')
+      .equals(null)
       .exec();
     if (!domain) {
-      throw new NotFoundException(`Domain with host ${host} not found`);
+      throw new NotFoundException(`Domain with id ${id} not found`);
     }
 
     domain.enabled = false;
     domain.deleted_at = new Date();
     const updated = await domain.save();
 
+    // Sync to lambda (non-blocking)
     try {
       const lastSync = await this.syncService.syncDomain(
         updated.toObject() as any,
-        requestId,
+        'delete',
       );
       updated.last_sync = lastSync;
       await updated.save();
     } catch (error) {
-      this.logger.error(`Sync failed for domain ${host}: ${error}`);
+      this.logger.error(`Sync failed for domain ${id}: ${error}`);
+      // Don't fail the delete operation
     }
   }
 }

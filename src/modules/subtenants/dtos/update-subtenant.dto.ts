@@ -8,5 +8,9 @@ export class UpdateSubtenantDto {
   @IsOptional()
   @IsBoolean()
   enabled?: boolean;
+
+  @IsOptional()
+  @IsString()
+  logo?: string;
 }
 

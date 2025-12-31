@@ -16,6 +16,9 @@ export class Subtenant {
   @Prop({ required: true, default: true })
   enabled: boolean;
 
+  @Prop({ required: true })
+  logo: string;
+
   @Prop({ type: Date })
   deleted_at?: Date;
 

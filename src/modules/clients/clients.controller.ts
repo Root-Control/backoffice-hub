@@ -6,7 +6,6 @@ import {
   Delete,
   Body,
   Param,
-  Headers,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
@@ -20,11 +19,8 @@ export class ClientsController {
   constructor(private readonly clientsService: ClientsService) {}
 
   @Post()
-  async create(
-    @Body() dto: CreateClientDto,
-    @Headers('x-request-id') requestId?: string,
-  ) {
-    return this.clientsService.create(dto, requestId);
+  async create(@Body() dto: CreateClientDto) {
+    return this.clientsService.create(dto);
   }
 
   @Get()
@@ -41,18 +37,14 @@ export class ClientsController {
   async update(
     @Param('id', ParseObjectIdPipe) id: string,
     @Body() dto: UpdateClientDto,
-    @Headers('x-request-id') requestId?: string,
   ) {
-    return this.clientsService.update(id, dto, requestId);
+    return this.clientsService.update(id, dto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async delete(
-    @Param('id', ParseObjectIdPipe) id: string,
-    @Headers('x-request-id') requestId?: string,
-  ) {
-    await this.clientsService.delete(id, requestId);
+  async delete(@Param('id', ParseObjectIdPipe) id: string) {
+    await this.clientsService.delete(id);
   }
 }
 

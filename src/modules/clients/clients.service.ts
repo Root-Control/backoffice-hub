@@ -19,7 +19,7 @@ export class ClientsService {
     private syncService: SyncService,
   ) {}
 
-  async create(dto: CreateClientDto, requestId?: string): Promise<ClientDocument> {
+  async create(dto: CreateClientDto): Promise<ClientDocument> {
     const client = new this.clientModel({
       name: dto.name,
       enabled: dto.enabled !== undefined ? dto.enabled : true,
@@ -29,15 +29,17 @@ export class ClientsService {
 
     const saved = await client.save();
 
+    // Sync to lambda (non-blocking)
     try {
       const lastSync = await this.syncService.syncClient(
         saved.toObject() as any,
-        requestId,
+        'create',
       );
       saved.last_sync = lastSync;
       await saved.save();
     } catch (error) {
       this.logger.error(`Sync failed for client ${saved._id}: ${error}`);
+      // Don't fail the create operation
     }
 
     return saved;
@@ -62,7 +64,6 @@ export class ClientsService {
   async update(
     id: string,
     dto: UpdateClientDto,
-    requestId?: string,
   ): Promise<ClientDocument> {
     const client = await this.clientModel
       .findById(id)
@@ -76,21 +77,23 @@ export class ClientsService {
     Object.assign(client, dto);
     const updated = await client.save();
 
+    // Sync to lambda (non-blocking)
     try {
       const lastSync = await this.syncService.syncClient(
         updated.toObject() as any,
-        requestId,
+        'update',
       );
       updated.last_sync = lastSync;
       await updated.save();
     } catch (error) {
       this.logger.error(`Sync failed for client ${id}: ${error}`);
+      // Don't fail the update operation
     }
 
     return updated;
   }
 
-  async delete(id: string, requestId?: string): Promise<void> {
+  async delete(id: string): Promise<void> {
     const client = await this.clientModel
       .findById(id)
       .where('deleted_at')
@@ -104,15 +107,17 @@ export class ClientsService {
     client.deleted_at = new Date();
     const updated = await client.save();
 
+    // Sync to lambda (non-blocking)
     try {
       const lastSync = await this.syncService.syncClient(
         updated.toObject() as any,
-        requestId,
+        'delete',
       );
       updated.last_sync = lastSync;
       await updated.save();
     } catch (error) {
       this.logger.error(`Sync failed for client ${id}: ${error}`);
+      // Don't fail the delete operation
     }
   }
 }

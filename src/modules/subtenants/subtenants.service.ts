@@ -19,24 +19,27 @@ export class SubtenantsService {
     private syncService: SyncService,
   ) {}
 
-  async create(dto: CreateSubtenantDto, requestId?: string): Promise<SubtenantDocument> {
+  async create(dto: CreateSubtenantDto): Promise<SubtenantDocument> {
     const subtenant = new this.subtenantModel({
       tenant_id: dto.tenant_id,
       name: dto.name,
       enabled: dto.enabled !== undefined ? dto.enabled : true,
+      logo: dto.logo,
     });
 
     const saved = await subtenant.save();
 
+    // Sync to lambda (non-blocking)
     try {
       const lastSync = await this.syncService.syncSubtenant(
         saved.toObject() as any,
-        requestId,
+        'create',
       );
       saved.last_sync = lastSync;
       await saved.save();
     } catch (error) {
       this.logger.error(`Sync failed for subtenant ${saved._id}: ${error}`);
+      // Don't fail the create operation
     }
 
     return saved;
@@ -61,7 +64,6 @@ export class SubtenantsService {
   async update(
     id: string,
     dto: UpdateSubtenantDto,
-    requestId?: string,
   ): Promise<SubtenantDocument> {
     const subtenant = await this.subtenantModel
       .findById(id)
@@ -75,21 +77,23 @@ export class SubtenantsService {
     Object.assign(subtenant, dto);
     const updated = await subtenant.save();
 
+    // Sync to lambda (non-blocking)
     try {
       const lastSync = await this.syncService.syncSubtenant(
         updated.toObject() as any,
-        requestId,
+        'update',
       );
       updated.last_sync = lastSync;
       await updated.save();
     } catch (error) {
       this.logger.error(`Sync failed for subtenant ${id}: ${error}`);
+      // Don't fail the update operation
     }
 
     return updated;
   }
 
-  async delete(id: string, requestId?: string): Promise<void> {
+  async delete(id: string): Promise<void> {
     const subtenant = await this.subtenantModel
       .findById(id)
       .where('deleted_at')
@@ -103,15 +107,17 @@ export class SubtenantsService {
     subtenant.deleted_at = new Date();
     const updated = await subtenant.save();
 
+    // Sync to lambda (non-blocking)
     try {
       const lastSync = await this.syncService.syncSubtenant(
         updated.toObject() as any,
-        requestId,
+        'delete',
       );
       updated.last_sync = lastSync;
       await updated.save();
     } catch (error) {
       this.logger.error(`Sync failed for subtenant ${id}: ${error}`);
+      // Don't fail the delete operation
     }
   }
 }

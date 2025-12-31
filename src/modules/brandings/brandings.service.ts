@@ -1,10 +1,11 @@
 import {
   Injectable,
   NotFoundException,
+  ConflictException,
   Logger,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Branding, BrandingDocument } from './schemas/branding.schema';
 import { CreateBrandingDto } from './dtos/create-branding.dto';
 import { UpdateBrandingDto } from './dtos/update-branding.dto';
@@ -19,32 +20,51 @@ export class BrandingsService {
     private syncService: SyncService,
   ) {}
 
-  async create(dto: CreateBrandingDto, requestId?: string): Promise<BrandingDocument> {
+  async create(dto: CreateBrandingDto): Promise<BrandingDocument> {
+    // Check if branding already exists for this subtenant
+    const existing = await this.brandingModel
+      .findOne({ subtenant_id: new Types.ObjectId(dto.subtenant_id), deleted_at: null })
+      .exec();
+
+    if (existing) {
+      throw new ConflictException('BRANDING_ALREADY_EXISTS_FOR_SUBTENANT');
+    }
+
     const branding = new this.brandingModel({
-      scope: dto.scope,
-      tenant_id: dto.tenant_id,
-      subtenant_id: dto.subtenant_id,
+      subtenant_id: new Types.ObjectId(dto.subtenant_id),
       enabled: dto.enabled !== undefined ? dto.enabled : true,
     });
 
     const saved = await branding.save();
 
+    // Sync to lambda (non-blocking)
     try {
       const lastSync = await this.syncService.syncBranding(
         saved.toObject() as any,
-        requestId,
+        'create',
       );
       saved.last_sync = lastSync;
       await saved.save();
     } catch (error) {
       this.logger.error(`Sync failed for branding ${saved._id}: ${error}`);
+      // Don't fail the create operation
     }
 
     return saved;
   }
 
-  async find(): Promise<BrandingDocument[]> {
-    return this.brandingModel.find({ deleted_at: null }).exec();
+  async find(subtenantId?: string, enabled?: boolean): Promise<BrandingDocument[]> {
+    const query: any = { deleted_at: null };
+
+    if (subtenantId) {
+      query.subtenant_id = new Types.ObjectId(subtenantId);
+    }
+
+    if (enabled !== undefined) {
+      query.enabled = enabled;
+    }
+
+    return this.brandingModel.find(query).exec();
   }
 
   async findOne(id: string): Promise<BrandingDocument> {
@@ -62,7 +82,6 @@ export class BrandingsService {
   async update(
     id: string,
     dto: UpdateBrandingDto,
-    requestId?: string,
   ): Promise<BrandingDocument> {
     const branding = await this.brandingModel
       .findById(id)
@@ -76,21 +95,23 @@ export class BrandingsService {
     Object.assign(branding, dto);
     const updated = await branding.save();
 
+    // Sync to lambda (non-blocking)
     try {
       const lastSync = await this.syncService.syncBranding(
         updated.toObject() as any,
-        requestId,
+        'update',
       );
       updated.last_sync = lastSync;
       await updated.save();
     } catch (error) {
       this.logger.error(`Sync failed for branding ${id}: ${error}`);
+      // Don't fail the update operation
     }
 
     return updated;
   }
 
-  async delete(id: string, requestId?: string): Promise<void> {
+  async delete(id: string): Promise<void> {
     const branding = await this.brandingModel
       .findById(id)
       .where('deleted_at')
@@ -104,16 +125,17 @@ export class BrandingsService {
     branding.deleted_at = new Date();
     const updated = await branding.save();
 
+    // Sync to lambda (non-blocking)
     try {
       const lastSync = await this.syncService.syncBranding(
         updated.toObject() as any,
-        requestId,
+        'delete',
       );
       updated.last_sync = lastSync;
       await updated.save();
     } catch (error) {
       this.logger.error(`Sync failed for branding ${id}: ${error}`);
+      // Don't fail the delete operation
     }
   }
 }
-

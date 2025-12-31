@@ -1,6 +1,5 @@
-db.brandings.deleteMany({});
-db.clients.deleteMany({});
-db.domains.deleteMany({});
-db.subtenants.deleteMany({});
-db.sync_outbox.deleteMany({});
-db.tenants.deleteMany({});
+db.brandings.deleteMany({});db.clients.deleteMany({});db.domains.deleteMany({});db.subtenants.deleteMany({});db.sync_outbox.deleteMany({});db.tenants.deleteMany({});
+
+
+db.auth_brandings.deleteMany({});db.auth_clients.deleteMany({});db.auth_domains.deleteMany({});db.auth_organizations.deleteMany({});db.auth_subtenants.deleteMany({});db.auth_sync_idempotency.deleteMany({});db.auth_tenants.deleteMany({});db.auth_webhooks_uptime.deleteMany({});
+
