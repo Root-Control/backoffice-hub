@@ -14,10 +14,10 @@ export class Domain {
   tenant_id: string;
 
   @Prop({ type: String })
-  default_subtenant_id?: string;
+  default_tenant_id?: string;
 
   @Prop({ type: String })
-  client_id?: string;
+  application_id?: string;
 
   @Prop({ required: true, default: true })
   enabled: boolean;

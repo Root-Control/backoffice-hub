@@ -24,9 +24,9 @@ export class SyncService {
   ) {}
 
   /**
-   * Sync tenant to Stage 1 lambda
+   * Sync client to Stage 1 lambda
    */
-  async syncTenant(
+  async syncClient(
     doc: {
       _id: string | { toString(): string } | { toHexString(): string };
       enabled: boolean;
@@ -43,11 +43,11 @@ export class SyncService {
       typeof (doc as any)._id === 'string'
         ? (doc as any)._id
         : (doc as any)._id?.toHexString?.() || (doc as any)._id.toString();
-    const reqId = ensureRequestId(undefined, action, 'tenant', entityId);
+    const reqId = ensureRequestId(undefined, action, 'client', entityId);
 
     const payload = {
       request_id: reqId,
-      tenant: {
+      client: {
         id: entityId,
         enabled: (doc as any).enabled,
         name: (doc as any).name,
@@ -66,13 +66,13 @@ export class SyncService {
       },
     };
 
-    return this.sync('tenant', entityId, reqId, payload);
+    return this.sync('client', entityId, reqId, payload);
   }
 
   /**
-   * Sync client to Stage 1 lambda
+   * Sync application to Stage 1 lambda
    */
-  async syncClient(
+  async syncApplication(
     doc: {
       _id: string | { toString(): string } | { toHexString(): string };
       enabled: boolean;
@@ -87,11 +87,11 @@ export class SyncService {
       typeof (doc as any)._id === 'string'
         ? (doc as any)._id
         : (doc as any)._id?.toHexString?.() || (doc as any)._id.toString();
-    const reqId = ensureRequestId(undefined, action, 'client', entityId);
+    const reqId = ensureRequestId(undefined, action, 'application', entityId);
 
     const payload = {
       request_id: reqId,
-      client: {
+      application: {
         id: entityId,
         enabled: (doc as any).enabled,
         name: (doc as any).name,
@@ -108,16 +108,16 @@ export class SyncService {
       },
     };
 
-    return this.sync('client', entityId, reqId, payload);
+    return this.sync('application', entityId, reqId, payload);
   }
 
   /**
-   * Sync subtenant to Stage 1 lambda
+   * Sync tenant to Stage 1 lambda
    */
-  async syncSubtenant(
+  async syncTenant(
     doc: {
       _id: string | { toString(): string } | { toHexString(): string };
-      tenant_id: string;
+      client_id: string;
       enabled: boolean;
       name: string;
       [key: string]: unknown;
@@ -128,19 +128,19 @@ export class SyncService {
       typeof (doc as any)._id === 'string'
         ? (doc as any)._id
         : (doc as any)._id?.toHexString?.() || (doc as any)._id.toString();
-    const reqId = ensureRequestId(undefined, action, 'subtenant', entityId);
+    const reqId = ensureRequestId(undefined, action, 'tenant', entityId);
 
     const payload = {
       request_id: reqId,
-      subtenant: {
+      tenant: {
         id: entityId,
-        tenant_id: (doc as any).tenant_id,
+        client_id: (doc as any).client_id,
         enabled: (doc as any).enabled,
         name: (doc as any).name,
         ...Object.fromEntries(
           Object.entries(doc as Record<string, unknown>).filter(
             ([key]) =>
-              !['_id', 'tenant_id', 'enabled', 'name', 'createdAt', 'updatedAt', 'deleted_at', 'last_sync'].includes(
+              !['_id', 'client_id', 'enabled', 'name', 'createdAt', 'updatedAt', 'deleted_at', 'last_sync'].includes(
                 key,
               ),
           ),
@@ -148,7 +148,7 @@ export class SyncService {
       },
     };
 
-    return this.sync('subtenant', entityId, reqId, payload);
+    return this.sync('tenant', entityId, reqId, payload);
   }
 
   /**
@@ -160,8 +160,8 @@ export class SyncService {
       host: string;
       enabled: boolean;
       tenant_id: string;
-      default_subtenant_id?: string;
-      client_id?: string;
+      default_tenant_id?: string;
+      application_id?: string;
       [key: string]: unknown;
     } | Record<string, unknown>,
     action: 'create' | 'update' | 'delete' = 'update',
@@ -179,12 +179,12 @@ export class SyncService {
         host: (doc as any).host,
         enabled: (doc as any).enabled,
         tenant_id: (doc as any).tenant_id,
-        default_subtenant_id: (doc as any).default_subtenant_id,
-        client_id: (doc as any).client_id,
+        default_tenant_id: (doc as any).default_tenant_id,
+        application_id: (doc as any).application_id,
         ...Object.fromEntries(
           Object.entries(doc as Record<string, unknown>).filter(
             ([key]) =>
-              !['_id', 'host', 'enabled', 'tenant_id', 'default_subtenant_id', 'client_id', 'createdAt', 'updatedAt', 'deleted_at', 'last_sync'].includes(
+              !['_id', 'host', 'enabled', 'tenant_id', 'default_tenant_id', 'application_id', 'createdAt', 'updatedAt', 'deleted_at', 'last_sync'].includes(
                 key,
               ),
           ),
@@ -201,7 +201,7 @@ export class SyncService {
   async syncBranding(
     doc: {
       _id: string | { toString(): string } | { toHexString(): string };
-      subtenant_id: string | { toString(): string } | { toHexString(): string };
+      tenant_id: string | { toString(): string } | { toHexString(): string };
       enabled: boolean;
       [key: string]: unknown;
     } | Record<string, unknown>,
@@ -211,22 +211,22 @@ export class SyncService {
       typeof (doc as any)._id === 'string'
         ? (doc as any)._id
         : (doc as any)._id?.toHexString?.() || (doc as any)._id.toString();
-    const subtenantId =
-      typeof (doc as any).subtenant_id === 'string'
-        ? (doc as any).subtenant_id
-        : (doc as any).subtenant_id?.toHexString?.() || (doc as any).subtenant_id.toString();
+    const tenantId =
+      typeof (doc as any).tenant_id === 'string'
+        ? (doc as any).tenant_id
+        : (doc as any).tenant_id?.toHexString?.() || (doc as any).tenant_id.toString();
     const reqId = ensureRequestId(undefined, action, 'branding', entityId);
 
     const payload = {
       request_id: reqId,
       branding: {
         id: entityId,
-        subtenant_id: subtenantId,
+        tenant_id: tenantId,
         enabled: (doc as any).enabled,
         ...Object.fromEntries(
           Object.entries(doc as Record<string, unknown>).filter(
             ([key]) =>
-              !['_id', 'subtenant_id', 'enabled', 'created_at', 'updated_at', 'deleted_at', 'last_sync'].includes(
+              !['_id', 'tenant_id', 'enabled', 'created_at', 'updated_at', 'deleted_at', 'last_sync'].includes(
                 key,
               ),
           ),
@@ -254,14 +254,14 @@ export class SyncService {
             payload as unknown as Parameters<typeof this.hubLambdaClient.upsertTenant>[0],
           );
           break;
+        case 'application':
+          response = await this.hubLambdaClient.upsertApplication(
+            payload as unknown as Parameters<typeof this.hubLambdaClient.upsertApplication>[0],
+          );
+          break;
         case 'client':
           response = await this.hubLambdaClient.upsertClient(
             payload as unknown as Parameters<typeof this.hubLambdaClient.upsertClient>[0],
-          );
-          break;
-        case 'subtenant':
-          response = await this.hubLambdaClient.upsertSubtenant(
-            payload as unknown as Parameters<typeof this.hubLambdaClient.upsertSubtenant>[0],
           );
           break;
         case 'domain':

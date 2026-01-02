@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Client, ClientDocument } from './schemas/client.schema';
@@ -23,8 +19,13 @@ export class ClientsService {
     const client = new this.clientModel({
       name: dto.name,
       enabled: dto.enabled !== undefined ? dto.enabled : true,
-      redirect_uris: dto.redirect_uris,
-      pkce_required: dto.pkce_required,
+      password_check_endpoint: dto.password_check_endpoint,
+      user_migrated_endpoint: dto.user_migrated_endpoint,
+      lookup_email_endpoint: dto.lookup_email_endpoint,
+      slug: dto.slug,
+      logo: dto.logo,
+      allow_auto_link:
+        dto.allow_auto_link !== undefined ? dto.allow_auto_link : true,
     });
 
     const saved = await client.save();
@@ -103,6 +104,7 @@ export class ClientsService {
       throw new NotFoundException(`Client with id ${id} not found`);
     }
 
+    // Soft delete
     client.enabled = false;
     client.deleted_at = new Date();
     const updated = await client.save();
@@ -121,4 +123,3 @@ export class ClientsService {
     }
   }
 }
-

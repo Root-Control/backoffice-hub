@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { TenantsModule } from './modules/tenants/tenants.module';
 import { ClientsModule } from './modules/clients/clients.module';
-import { SubtenantsModule } from './modules/subtenants/subtenants.module';
+import { ApplicationsModule } from './modules/applications/applications.module';
+import { TenantsModule } from './modules/tenants/tenants.module';
 import { DomainsModule } from './modules/domains/domains.module';
 import { BrandingsModule } from './modules/brandings/brandings.module';
 
@@ -27,9 +27,9 @@ import { BrandingsModule } from './modules/brandings/brandings.module';
       },
       inject: [ConfigService],
     }),
-    TenantsModule,
     ClientsModule,
-    SubtenantsModule,
+    ApplicationsModule,
+    TenantsModule,
     DomainsModule,
     BrandingsModule,
   ],

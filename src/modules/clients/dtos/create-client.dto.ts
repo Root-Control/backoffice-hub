@@ -1,4 +1,10 @@
-import { IsString, IsBoolean, IsOptional, IsArray } from 'class-validator';
+import {
+  IsString,
+  IsBoolean,
+  IsOptional,
+  IsUrl,
+  MaxLength,
+} from 'class-validator';
 
 export class CreateClientDto {
   @IsString()
@@ -6,14 +12,32 @@ export class CreateClientDto {
 
   @IsOptional()
   @IsBoolean()
-  enabled?: boolean;
+  enabled?: boolean; // default: true
 
-  @IsArray()
-  @IsString({ each: true })
-  redirect_uris: string[];
+  @IsString()
+  password_check_endpoint: string;
 
-  @IsOptional()
+  @IsString()
+  user_migrated_endpoint: string;
+
+  @IsUrl(
+    { require_protocol: true, require_tld: false },
+    {
+      message:
+        'lookup_email_endpoint must be a valid URL with protocol (http:// or https://)',
+    },
+  )
+  @MaxLength(2048, {
+    message: 'lookup_email_endpoint must not exceed 2048 characters',
+  })
+  lookup_email_endpoint: string;
+
+  @IsString()
+  slug: string;
+
+  @IsString()
+  logo: string;
+
   @IsBoolean()
-  pkce_required?: boolean;
+  allow_auto_link: boolean;
 }
-

@@ -108,16 +108,16 @@ export class OutboxService {
             typeof this.hubLambdaClient.upsertTenant
           >[0],
         );
+      case 'application':
+        return this.hubLambdaClient.upsertApplication(
+          payload as unknown as Parameters<
+            typeof this.hubLambdaClient.upsertApplication
+          >[0],
+        );
       case 'client':
         return this.hubLambdaClient.upsertClient(
           payload as unknown as Parameters<
             typeof this.hubLambdaClient.upsertClient
-          >[0],
-        );
-      case 'subtenant':
-        return this.hubLambdaClient.upsertSubtenant(
-          payload as unknown as Parameters<
-            typeof this.hubLambdaClient.upsertSubtenant
           >[0],
         );
       case 'domain':

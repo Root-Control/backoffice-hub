@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Document } from 'mongoose';
 
 export type TenantDocument = Tenant & Document;
 
@@ -8,28 +8,16 @@ export class Tenant {
   // _id is ObjectId by default - MongoDB handles it automatically
 
   @Prop({ required: true })
+  client_id: string;
+
+  @Prop({ required: true })
   name: string;
 
   @Prop({ required: true, default: true })
   enabled: boolean;
 
   @Prop({ required: true })
-  password_check_endpoint: string;
-
-  @Prop({ required: true })
-  user_migrated_endpoint: string;
-
-  @Prop({ required: true })
-  lookup_email_endpoint: string;
-
-  @Prop({ required: true })
-  slug: string;
-
-  @Prop({ required: true })
   logo: string;
-
-  @Prop({ required: true, default: true })
-  allow_auto_link: boolean;
 
   @Prop({ type: Date })
   deleted_at?: Date;
@@ -57,3 +45,4 @@ export class Tenant {
 }
 
 export const TenantSchema = SchemaFactory.createForClass(Tenant);
+TenantSchema.index({ client_id: 1 });

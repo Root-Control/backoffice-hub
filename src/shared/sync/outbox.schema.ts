@@ -6,7 +6,7 @@ export type OutboxDocument = Outbox & Document;
 @Schema({ collection: 'sync_outbox', timestamps: true })
 export class Outbox {
   @Prop({ required: true })
-  entity_type: 'tenant' | 'client' | 'subtenant' | 'domain' | 'branding';
+  entity_type: 'tenant' | 'application' | 'client' | 'domain' | 'branding';
 
   @Prop({ required: true })
   entity_key: string; // id or host

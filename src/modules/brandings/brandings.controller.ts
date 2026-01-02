@@ -26,12 +26,12 @@ export class BrandingsController {
 
   @Get()
   async find(
-    @Query('subtenant_id') subtenantId?: string,
+    @Query('tenant_id') tenantId?: string,
     @Query('enabled') enabled?: string,
   ) {
     const enabledBool =
       enabled === 'true' ? true : enabled === 'false' ? false : undefined;
-    return this.brandingsService.find(subtenantId, enabledBool);
+    return this.brandingsService.find(tenantId, enabledBool);
   }
 
   @Get(':id')

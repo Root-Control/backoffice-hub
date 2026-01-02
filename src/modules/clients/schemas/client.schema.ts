@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export type ClientDocument = Client & Document;
 
@@ -13,11 +13,23 @@ export class Client {
   @Prop({ required: true, default: true })
   enabled: boolean;
 
-  @Prop({ required: true, type: [String] })
-  redirect_uris: string[];
+  @Prop({ required: true })
+  password_check_endpoint: string;
 
-  @Prop({ type: Boolean })
-  pkce_required?: boolean;
+  @Prop({ required: true })
+  user_migrated_endpoint: string;
+
+  @Prop({ required: true })
+  lookup_email_endpoint: string;
+
+  @Prop({ required: true })
+  slug: string;
+
+  @Prop({ required: true })
+  logo: string;
+
+  @Prop({ required: true, default: true })
+  allow_auto_link: boolean;
 
   @Prop({ type: Date })
   deleted_at?: Date;

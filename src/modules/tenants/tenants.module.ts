@@ -7,11 +7,12 @@ import { SyncModule } from '../../shared/sync/sync.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Tenant.name, schema: TenantSchema }]),
+    MongooseModule.forFeature([
+      { name: Tenant.name, schema: TenantSchema },
+    ]),
     SyncModule,
   ],
   controllers: [TenantsController],
   providers: [TenantsService],
 })
 export class TenantsModule {}
-

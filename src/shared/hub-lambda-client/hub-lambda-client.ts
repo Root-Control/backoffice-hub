@@ -2,9 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   HubLambdaResponse,
-  UpsertTenantPayload,
   UpsertClientPayload,
-  UpsertSubtenantPayload,
+  UpsertTenantPayload,
+  UpsertApplicationPayload,
   UpsertDomainPayload,
   UpsertBrandingPayload,
 } from './types';
@@ -15,9 +15,9 @@ export class HubLambdaClient {
   private readonly token: string;
   private readonly timeout: number;
   private readonly urls: {
-    tenants: string;
     clients: string;
-    subtenants: string;
+    tenants: string;
+    applications: string;
     domains: string;
     branding: string;
   };
@@ -27,10 +27,9 @@ export class HubLambdaClient {
     this.timeout = this.configService.get<number>('ADMIN_TIMEOUT_MS') || 8000;
 
     this.urls = {
-      tenants: this.configService.get<string>('ADMIN_TENANTS_UPSERT_URL') || '',
       clients: this.configService.get<string>('ADMIN_CLIENTS_UPSERT_URL') || '',
-      subtenants:
-        this.configService.get<string>('ADMIN_SUBTENANTS_UPSERT_URL') || '',
+      tenants: this.configService.get<string>('ADMIN_TENANTS_UPSERT_URL') || '',
+      applications: this.configService.get<string>('ADMIN_APPLICATIONS_UPSERT_URL') || '',
       domains: this.configService.get<string>('ADMIN_DOMAINS_UPSERT_URL') || '',
       branding:
         this.configService.get<string>('ADMIN_BRANDING_UPSERT_URL') || '',
@@ -152,13 +151,6 @@ export class HubLambdaClient {
     }
   }
 
-  async upsertTenant(payload: UpsertTenantPayload): Promise<HubLambdaResponse> {
-    if (!this.urls.tenants) {
-      throw new Error('ADMIN_TENANTS_UPSERT_URL not configured');
-    }
-    return this.makeRequest(this.urls.tenants, payload);
-  }
-
   async upsertClient(payload: UpsertClientPayload): Promise<HubLambdaResponse> {
     if (!this.urls.clients) {
       throw new Error('ADMIN_CLIENTS_UPSERT_URL not configured');
@@ -166,13 +158,20 @@ export class HubLambdaClient {
     return this.makeRequest(this.urls.clients, payload);
   }
 
-  async upsertSubtenant(
-    payload: UpsertSubtenantPayload,
-  ): Promise<HubLambdaResponse> {
-    if (!this.urls.subtenants) {
-      throw new Error('ADMIN_SUBTENANTS_UPSERT_URL not configured');
+  async upsertApplication(payload: UpsertApplicationPayload): Promise<HubLambdaResponse> {
+    if (!this.urls.applications) {
+      throw new Error('ADMIN_APPLICATIONS_UPSERT_URL not configured');
     }
-    return this.makeRequest(this.urls.subtenants, payload);
+    return this.makeRequest(this.urls.applications, payload);
+  }
+
+  async upsertTenant(
+    payload: UpsertTenantPayload,
+  ): Promise<HubLambdaResponse> {
+    if (!this.urls.tenants) {
+      throw new Error('ADMIN_TENANTS_UPSERT_URL not configured');
+    }
+    return this.makeRequest(this.urls.tenants, payload);
   }
 
   async upsertDomain(payload: UpsertDomainPayload): Promise<HubLambdaResponse> {

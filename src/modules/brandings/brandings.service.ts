@@ -21,17 +21,17 @@ export class BrandingsService {
   ) {}
 
   async create(dto: CreateBrandingDto): Promise<BrandingDocument> {
-    // Check if branding already exists for this subtenant
+    // Check if branding already exists for this tenant
     const existing = await this.brandingModel
-      .findOne({ subtenant_id: new Types.ObjectId(dto.subtenant_id), deleted_at: null })
+      .findOne({ tenant_id: new Types.ObjectId(dto.tenant_id), deleted_at: null })
       .exec();
 
     if (existing) {
-      throw new ConflictException('BRANDING_ALREADY_EXISTS_FOR_SUBTENANT');
+      throw new ConflictException('BRANDING_ALREADY_EXISTS_FOR_TENANT');
     }
 
     const branding = new this.brandingModel({
-      subtenant_id: new Types.ObjectId(dto.subtenant_id),
+      tenant_id: new Types.ObjectId(dto.tenant_id),
       enabled: dto.enabled !== undefined ? dto.enabled : true,
     });
 
@@ -53,11 +53,11 @@ export class BrandingsService {
     return saved;
   }
 
-  async find(subtenantId?: string, enabled?: boolean): Promise<BrandingDocument[]> {
+  async find(tenantId?: string, enabled?: boolean): Promise<BrandingDocument[]> {
     const query: any = { deleted_at: null };
 
-    if (subtenantId) {
-      query.subtenant_id = new Types.ObjectId(subtenantId);
+    if (tenantId) {
+      query.tenant_id = new Types.ObjectId(tenantId);
     }
 
     if (enabled !== undefined) {

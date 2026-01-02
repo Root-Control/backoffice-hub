@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Tenant, TenantDocument } from './schemas/tenant.schema';
@@ -21,17 +17,22 @@ export class TenantsService {
 
   async create(dto: CreateTenantDto): Promise<TenantDocument> {
     const tenant = new this.tenantModel({
-      client_id: dto.client_id,
       name: dto.name,
       enabled: dto.enabled !== undefined ? dto.enabled : true,
+      password_check_endpoint: dto.password_check_endpoint,
+      user_migrated_endpoint: dto.user_migrated_endpoint,
+      lookup_email_endpoint: dto.lookup_email_endpoint,
+      slug: dto.slug,
       logo: dto.logo,
+      allow_auto_link:
+        dto.allow_auto_link !== undefined ? dto.allow_auto_link : true,
     });
 
     const saved = await tenant.save();
 
     // Sync to lambda (non-blocking)
     try {
-      const lastSync = await this.syncService.syncTenant(
+      const lastSync = await this.syncService.syncClientTemp(
         saved.toObject() as any,
         'create',
       );
@@ -79,7 +80,7 @@ export class TenantsService {
 
     // Sync to lambda (non-blocking)
     try {
-      const lastSync = await this.syncService.syncTenant(
+      const lastSync = await this.syncService.syncClientTemp(
         updated.toObject() as any,
         'update',
       );
@@ -103,13 +104,14 @@ export class TenantsService {
       throw new NotFoundException(`Tenant with id ${id} not found`);
     }
 
+    // Soft delete
     tenant.enabled = false;
     tenant.deleted_at = new Date();
     const updated = await tenant.save();
 
     // Sync to lambda (non-blocking)
     try {
-      const lastSync = await this.syncService.syncTenant(
+      const lastSync = await this.syncService.syncClientTemp(
         updated.toObject() as any,
         'delete',
       );

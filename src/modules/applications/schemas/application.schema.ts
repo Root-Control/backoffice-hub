@@ -1,14 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-export type SubtenantDocument = Subtenant & Document;
+export type ApplicationDocument = Application & Document;
 
-@Schema({ collection: 'subtenants', timestamps: true })
-export class Subtenant {
+@Schema({ collection: 'applications', timestamps: true })
+export class Application {
   // _id is ObjectId by default - MongoDB handles it automatically
-
-  @Prop({ required: true })
-  tenant_id: string;
 
   @Prop({ required: true })
   name: string;
@@ -16,8 +13,11 @@ export class Subtenant {
   @Prop({ required: true, default: true })
   enabled: boolean;
 
-  @Prop({ required: true })
-  logo: string;
+  @Prop({ required: true, type: [String] })
+  redirect_uris: string[];
+
+  @Prop({ type: Boolean })
+  pkce_required?: boolean;
 
   @Prop({ type: Date })
   deleted_at?: Date;
@@ -44,5 +44,4 @@ export class Subtenant {
   };
 }
 
-export const SubtenantSchema = SchemaFactory.createForClass(Subtenant);
-SubtenantSchema.index({ tenant_id: 1 });
+export const ApplicationSchema = SchemaFactory.createForClass(Application);

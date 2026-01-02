@@ -47,4 +47,3 @@ export class ClientsController {
     await this.clientsService.delete(id);
   }
 }
-

@@ -10,9 +10,9 @@ export interface HubLambdaResponse {
   };
 }
 
-export interface UpsertTenantPayload {
+export interface UpsertClientPayload {
   request_id: string;
-  tenant: {
+  client: {
     id: string;
     enabled: boolean;
     name: string;
@@ -24,9 +24,9 @@ export interface UpsertTenantPayload {
   };
 }
 
-export interface UpsertClientPayload {
+export interface UpsertApplicationPayload {
   request_id: string;
-  client: {
+  application: {
     id: string;
     enabled: boolean;
     name: string;
@@ -36,11 +36,11 @@ export interface UpsertClientPayload {
   };
 }
 
-export interface UpsertSubtenantPayload {
+export interface UpsertTenantPayload {
   request_id: string;
-  subtenant: {
+  tenant: {
     id: string;
-    tenant_id: string;
+    client_id: string;
     enabled: boolean;
     name: string;
     [key: string]: unknown;
@@ -54,8 +54,8 @@ export interface UpsertDomainPayload {
     host: string;
     enabled: boolean;
     tenant_id: string;
-    default_subtenant_id?: string;
-    client_id?: string;
+    default_tenant_id?: string;
+    application_id?: string;
     [key: string]: unknown;
   };
 }
@@ -64,7 +64,7 @@ export interface UpsertBrandingPayload {
   request_id: string;
   branding: {
     id: string;
-    subtenant_id: string;
+    tenant_id: string;
     enabled: boolean;
     [key: string]: unknown;
   };

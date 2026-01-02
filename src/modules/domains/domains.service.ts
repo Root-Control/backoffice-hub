@@ -29,8 +29,8 @@ export class DomainsService {
     const domain = new this.domainModel({
       host: dto.host,
       tenant_id: dto.tenant_id,
-      default_subtenant_id: dto.default_subtenant_id,
-      client_id: dto.client_id,
+      default_tenant_id: dto.default_tenant_id,
+      application_id: dto.application_id,
       enabled: dto.enabled !== undefined ? dto.enabled : true,
     });
 

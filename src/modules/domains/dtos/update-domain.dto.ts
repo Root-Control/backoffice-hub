@@ -3,11 +3,11 @@ import { IsString, IsBoolean, IsOptional } from 'class-validator';
 export class UpdateDomainDto {
   @IsOptional()
   @IsString()
-  default_subtenant_id?: string;
+  default_tenant_id?: string;
 
   @IsOptional()
   @IsString()
-  client_id?: string;
+  application_id?: string;
 
   @IsOptional()
   @IsBoolean()

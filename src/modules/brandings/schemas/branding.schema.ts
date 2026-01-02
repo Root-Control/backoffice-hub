@@ -13,10 +13,10 @@ export class Branding {
   @Prop({
     required: true,
     type: Types.ObjectId,
-    ref: 'Subtenant',
+    ref: 'Tenant',
     unique: true,
   })
-  subtenant_id: Types.ObjectId;
+  tenant_id: Types.ObjectId;
 
   @Prop({ required: true, default: true })
   enabled: boolean;
@@ -47,5 +47,5 @@ export class Branding {
 }
 
 export const BrandingSchema = SchemaFactory.createForClass(Branding);
-BrandingSchema.index({ subtenant_id: 1 }, { unique: true });
+BrandingSchema.index({ tenant_id: 1 }, { unique: true });
 BrandingSchema.index({ enabled: 1 });

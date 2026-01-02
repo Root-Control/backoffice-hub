@@ -14,4 +14,3 @@ import { SyncModule } from '../../shared/sync/sync.module';
   providers: [ClientsService],
 })
 export class ClientsModule {}
-
